@@ -4,8 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
 import 'menuUtama.dart';
-import 'providers/nasabah_provider.dart';
-import 'providers/transaksi_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -22,26 +20,10 @@ class _LoginPageState extends State<LoginPage> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
-    final nasabahProvider =
-        Provider.of<NasabahProvider>(context, listen: false);
-    final transaksiProvider =
-        Provider.of<TransaksiProvider>(context, listen: false);
-
-    if (username == 'Sucitra' && password == '2315091029') {
+    if (username == '1' && password == '1') {
       // Simpan status login
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('is_logged_in', true);
-
-      // Reset saldo ke nilai awal
-      nasabahProvider.updateSaldo(10000000000);
-
-      // Reset data ke kondisi awal
-      await nasabahProvider.saveToPrefs();
-      await transaksiProvider.resetTransaksi();
-
-      // Inisialisasi data nasabah dan transaksi
-      await nasabahProvider.loadFromPrefs();
-      await transaksiProvider.loadFromPrefs();
 
       Navigator.pushReplacement(
         context,
@@ -65,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.symmetric(vertical: 10),
             child: const Center(
               child: Text(
-                'Koperasi Undiksha',
+                'Manajemen Peminjaman Barang',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 20,
@@ -75,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 20),
           Image.asset(
-            'assets/logo_undiksha.png', // Ganti dengan path logo Undiksha di folder assets
+            'assets/logo_utama.png', // Logo utama aplikasi
             height: 150,
           ),
           Padding(
@@ -118,6 +100,13 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/register');
+                  },
+                  child: const Text('Belum punya akun? Register'),
                 ),
               ],
             ),

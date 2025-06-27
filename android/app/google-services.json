@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "614001125375",
+    "project_id": "peminjaman-bddec",
+    "storage_bucket": "peminjaman-bddec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:614001125375:android:dd6ca68e5b1e1b4d7b69ca",
+        "android_client_info": {
+          "package_name": "com.sucitra.manajemenbarang"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0ROBrg5tUeRP5nmjqBXQIWOdJIXhPrnY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
