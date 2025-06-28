@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "614001125375",
-    "project_id": "peminjaman-bddec",
-    "storage_bucket": "peminjaman-bddec.firebasestorage.app"
+    "project_number": "747945323718",
+    "project_id": "sucitra-66435",
+    "storage_bucket": "sucitra-66435.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:614001125375:android:dd6ca68e5b1e1b4d7b69ca",
+        "mobilesdk_app_id": "1:747945323718:android:12725f685e94cf72aa7bc7",
         "android_client_info": {
-          "package_name": "com.sucitra.manajemenbarang"
+          "package_name": "com.sucitra.aplikasikoperasiundiksha"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "747945323718-554rmbq7me44q471hem89drrc9jbo32g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sucitra.aplikasikoperasiundiksha",
+            "certificate_hash": "d849d431283c5729a483670ec7e4bd73c6d3cd5f"
+          }
+        },
+        {
+          "client_id": "747945323718-1mrt79u8lckdjh6q16ugld66r3i177qm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyB0ROBrg5tUeRP5nmjqBXQIWOdJIXhPrnY"
+          "current_key": "AIzaSyB-crNSVUKqwSlMr5DJdL6zc0-6HpcUR0A"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "747945323718-1mrt79u8lckdjh6q16ugld66r3i177qm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

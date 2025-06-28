@@ -16,6 +16,10 @@ class MenuUtama extends StatefulWidget {
 class _MenuUtamaState extends State<MenuUtama> {
   int _selectedIndex = 1;
 
+  // Tambahan untuk pencarian
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -27,6 +31,12 @@ class _MenuUtamaState extends State<MenuUtama> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Widget _buildProfile() {
@@ -44,6 +54,22 @@ class _MenuUtamaState extends State<MenuUtama> {
       builder: (context, loanProvider, _) {
         final daftarPinjaman = loanProvider.daftarPinjaman;
 
+        // Filter berdasarkan pencarian
+        final filteredPinjaman = _searchQuery.isEmpty
+            ? daftarPinjaman
+            : daftarPinjaman.where((pinjaman) {
+                final namaBarang =
+                    (pinjaman['namaBarang'] ?? pinjaman['nama_barang'] ?? '')
+                        .toString()
+                        .toLowerCase();
+                final peminjam =
+                    (pinjaman['dipinjamOleh'] ?? pinjaman['peminjam'] ?? '')
+                        .toString()
+                        .toLowerCase();
+                final query = _searchQuery.toLowerCase();
+                return namaBarang.contains(query) || peminjam.contains(query);
+              }).toList();
+
         final _pages = [
           const AddLoanScreen(),
           Scaffold(
@@ -57,52 +83,80 @@ class _MenuUtamaState extends State<MenuUtama> {
             body: Container(
               color: Theme.of(context).scaffoldBackgroundColor,
               padding: const EdgeInsets.all(24.0),
-              child: daftarPinjaman.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Belum ada data peminjaman.',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+              child: Column(
+                children: [
+                  // Widget pencarian
+                  TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Cari nama barang atau peminjam...',
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    )
-                  : ListView.builder(
-                      itemCount: daftarPinjaman.length,
-                      itemBuilder: (context, index) {
-                        final pinjaman = daftarPinjaman[index];
-                        return Card(
-                          elevation: 2,
-                          color: Theme.of(context).cardColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              pinjaman['namaBarang'],
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text('Oleh: ${pinjaman['dipinjamOleh']}'),
-                            trailing: Text(
-                              pinjaman['status'],
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: filteredPinjaman.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'Belum ada data peminjaman.',
                               style: TextStyle(
-                                color: pinjaman['status'] == 'Dipinjam'
-                                    ? Colors.orange
-                                    : Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => DetailScreen(loan: pinjaman),
+                          )
+                        : ListView.builder(
+                            itemCount: filteredPinjaman.length,
+                            itemBuilder: (context, index) {
+                              final pinjaman = filteredPinjaman[index];
+                              return Card(
+                                elevation: 2,
+                                color: Theme.of(context).cardColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: ListTile(
+                                  title: Text(
+                                    pinjaman['namaBarang'] ??
+                                        pinjaman['nama_barang'] ??
+                                        '',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  subtitle: Text(
+                                      'Oleh: ${pinjaman['dipinjamOleh'] ?? pinjaman['peminjam'] ?? ''}'),
+                                  trailing: Text(
+                                    pinjaman['status'],
+                                    style: TextStyle(
+                                      color: pinjaman['status'] == 'Dipinjam' ||
+                                              pinjaman['status'] == 'dipinjam'
+                                          ? Colors.orange
+                                          : Colors.green,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            DetailScreen(loan: pinjaman),
+                                      ),
+                                    );
+                                  },
                                 ),
                               );
                             },
                           ),
-                        );
-                      },
-                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const ProfilePage(),

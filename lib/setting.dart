@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -168,17 +169,41 @@ class _SettingPageState extends State<SettingPage> {
         });
         return;
       }
-      userData['password'] = _newPasswordController.text;
-      await prefs.setString('user_data', json.encode(userData));
-      setState(() {
-        _passwordError = null;
-        _oldPasswordController.clear();
-        _newPasswordController.clear();
-        _confirmPasswordController.clear();
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password berhasil diganti!')),
-      );
+      // Cari dokumen user di Firestore (pakai email)
+      try {
+        final query = await FirebaseFirestore.instance
+            .collection('user')
+            .where('email', isEqualTo: userData['email'])
+            .get();
+        if (query.docs.isNotEmpty) {
+          final docId = query.docs.first.id;
+          // Update password di Firestore
+          await FirebaseFirestore.instance
+              .collection('user')
+              .doc(docId)
+              .update({'password': _newPasswordController.text});
+          // Update juga di SharedPreferences
+          userData['password'] = _newPasswordController.text;
+          await prefs.setString('user_data', json.encode(userData));
+          setState(() {
+            _passwordError = null;
+            _oldPasswordController.clear();
+            _newPasswordController.clear();
+            _confirmPasswordController.clear();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Password berhasil diganti!')),
+          );
+        } else {
+          setState(() {
+            _passwordError = 'User tidak ditemukan di database';
+          });
+        }
+      } catch (e) {
+        setState(() {
+          _passwordError = 'Gagal update password di database: $e';
+        });
+      }
     }
   }
 }

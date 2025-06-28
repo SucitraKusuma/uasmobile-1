@@ -1,7 +1,8 @@
 // add_loan_screen.dart
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'providers/loan_provider.dart';
 
 class AddLoanScreen extends StatefulWidget {
@@ -19,23 +20,40 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  void _simpanData() {
+  Future<void> _simpanData() async {
     if (_formKey.currentState!.validate() && _tanggalPinjam != null) {
       final data = {
         'namaBarang': _namaBarangController.text,
         'dipinjamOleh': _dipinjamOlehController.text,
-        'tanggalPinjam': DateFormat('dd-MM-yyyy').format(_tanggalPinjam!),
-        'status': _status,
+        'status': _status.toLowerCase(),
+        'tanggalPinjam': DateFormat('dd MMM yyyy').format(_tanggalPinjam!),
+        'createdAt': DateTime.now().toIso8601String(),
       };
 
-      Provider.of<LoanProvider>(context, listen: false)
-          .tambahPinjaman(data)
-          .then((_) {
+      try {
+        // Gunakan LoanProvider untuk menyimpan data
+        await Provider.of<LoanProvider>(context, listen: false)
+            .tambahPinjaman(data);
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Data berhasil disimpan ke Firestore!')),
         );
-        Navigator.pop(context);
-      });
+
+        // Clear form
+        _namaBarangController.clear();
+        _dipinjamOlehController.clear();
+        setState(() {
+          _tanggalPinjam = null;
+          _status = 'Dipinjam';
+        });
+
+        // Refresh data di halaman utama
+        Provider.of<LoanProvider>(context, listen: false).loadPinjaman();
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menyimpan data: $e')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Lengkapi semua data terlebih dulu.')),

@@ -31,8 +31,9 @@ class _DetailScreenState extends State<DetailScreen> {
           content: DropdownButtonFormField<String>(
             value: selectedStatus,
             items: const [
-              DropdownMenuItem(value: 'Dipinjam', child: Text('Dipinjam')),
-              DropdownMenuItem(value: 'Dikembalikan', child: Text('Dikembalikan')),
+              DropdownMenuItem(value: 'dipinjam', child: Text('Dipinjam')),
+              DropdownMenuItem(
+                  value: 'dikembalikan', child: Text('Dikembalikan')),
             ],
             onChanged: (value) {
               selectedStatus = value;
@@ -135,7 +136,8 @@ class _DetailScreenState extends State<DetailScreen> {
                         const SizedBox(height: 8),
                         Text('Dipinjam Oleh: ${widget.loan['dipinjamOleh']}'),
                         const SizedBox(height: 8),
-                        Text('Tanggal Pinjam: ${widget.loan['tanggalPinjam'] ?? widget.loan['tanggal']}'),
+                        Text(
+                            'Tanggal Pinjam: ${widget.loan['tanggalPinjam'] ?? widget.loan['tanggal']}'),
                         const SizedBox(height: 8),
                         Text('Status: $status'),
                       ],

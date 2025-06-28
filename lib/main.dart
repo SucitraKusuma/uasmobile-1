@@ -14,22 +14,62 @@ import 'DummyPage.dart';
 import 'providers/loan_provider.dart';
 import 'providers/theme_provider.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(); // <-- Wajib biar Firestore & Auth bisa jalan
+  runApp(const AppInitializer());
+}
 
-  final prefs = await SharedPreferences.getInstance();
-  final isLoggedIn = prefs.getBool('is_logged_in') ?? false;
+class AppInitializer extends StatefulWidget {
+  const AppInitializer({super.key});
 
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LoanProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ],
-      child: MyApp(isLoggedIn: isLoggedIn),
-    ),
-  );
+  @override
+  State<AppInitializer> createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends State<AppInitializer> {
+  late Future<bool> _initFuture;
+
+  Future<bool> _initialize() async {
+    await Firebase.initializeApp();
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('is_logged_in') ?? false;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initFuture = _initialize();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _initFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return MaterialApp(
+            home: Scaffold(
+              body: Center(child: Text('Firebase init error: ${snapshot.error}')),
+            ),
+          );
+        } else {
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => LoanProvider()),
+              ChangeNotifierProvider(create: (_) => ThemeProvider()),
+            ],
+            child: MyApp(isLoggedIn: snapshot.data ?? false),
+          );
+        }
+      },
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {

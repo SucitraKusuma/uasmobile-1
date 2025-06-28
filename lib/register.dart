@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -29,6 +30,17 @@ class _RegisterPageState extends State<RegisterPage> {
         'jabatan': _jabatanController.text,
         'password': _passwordController.text,
       };
+
+      // Simpan ke Firestore
+      try {
+        await FirebaseFirestore.instance.collection('user').add(userData);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal simpan ke Firestore: $e')),
+        );
+        return;
+      }
+
       await prefs.setString('user_data', json.encode(userData));
       // Simulasi register sukses, arahkan ke login
       ScaffoldMessenger.of(context).showSnackBar(

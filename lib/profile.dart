@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'setting.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -40,6 +42,12 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _logout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('is_logged_in');
+    await prefs.remove('user_data');
+
+    // Tambahkan sign out Google dan Firebase
+    await GoogleSignIn().signOut();
+    await FirebaseAuth.instance.signOut();
+
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }
 
