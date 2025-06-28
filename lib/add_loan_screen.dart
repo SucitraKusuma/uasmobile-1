@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'providers/loan_provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AddLoanScreen extends StatefulWidget {
   const AddLoanScreen({super.key});
@@ -20,14 +24,72 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
+  // Tambahan untuk foto barang
+  File? _fotoBarang;
+
+  Future<void> _ambilFoto() async {
+    final picker = ImagePicker();
+    final pickedFile =
+        await picker.pickImage(source: ImageSource.camera, imageQuality: 70);
+    if (pickedFile != null) {
+      setState(() {
+        _fotoBarang = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<String?> uploadToImgur(File imageFile) async {
+    const clientId = 'f7fc1365b0f1c85'; // Client ID dari user
+    final url = Uri.parse('https://api.imgur.com/3/image');
+    final bytes = await imageFile.readAsBytes();
+    final base64Image = base64Encode(bytes);
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Client-ID $clientId',
+      },
+      body: {
+        'image': base64Image,
+        'type': 'base64',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['data']['link'];
+    } else {
+      print('Upload Imgur error: \\${response.body}');
+      return null;
+    }
+  }
+
   Future<void> _simpanData() async {
     if (_formKey.currentState!.validate() && _tanggalPinjam != null) {
+      if (_fotoBarang == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Silakan ambil foto barang terlebih dahulu!')),
+        );
+        return;
+      }
+
+      // Upload ke Imgur
+      final imgurUrl = await uploadToImgur(_fotoBarang!);
+      if (imgurUrl == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal upload foto ke Imgur')),
+        );
+        return;
+      }
+
       final data = {
         'namaBarang': _namaBarangController.text,
         'dipinjamOleh': _dipinjamOlehController.text,
         'status': _status.toLowerCase(),
         'tanggalPinjam': DateFormat('dd MMM yyyy').format(_tanggalPinjam!),
         'createdAt': DateTime.now().toIso8601String(),
+        'foto_barang': imgurUrl, // Simpan URL Imgur
       };
 
       try {
@@ -45,6 +107,7 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
         setState(() {
           _tanggalPinjam = null;
           _status = 'Dipinjam';
+          _fotoBarang = null;
         });
 
         // Refresh data di halaman utama
@@ -143,6 +206,25 @@ class _AddLoanScreenState extends State<AddLoanScreen> {
                     _status = value!;
                   });
                 },
+              ),
+              const SizedBox(height: 24),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _fotoBarang != null
+                      ? Image.file(_fotoBarang!, height: 120)
+                      : Container(
+                          height: 120,
+                          color: Colors.grey[200],
+                          child: const Center(child: Text('Belum ada foto')),
+                        ),
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    onPressed: _ambilFoto,
+                    icon: const Icon(Icons.camera_alt),
+                    label: const Text('Ambil Foto Barang'),
+                  ),
+                ],
               ),
               const SizedBox(height: 24),
               ElevatedButton(

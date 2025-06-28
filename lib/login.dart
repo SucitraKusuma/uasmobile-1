@@ -143,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 20),
             Image.asset(
-              'assets/logo_utama.png', // Logo utama aplikasi
+              'assets/logo_login.jpg', // Logo utama aplikasi
               height: 150,
             ),
             Padding(

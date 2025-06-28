@@ -55,7 +55,8 @@ class _AppInitializerState extends State<AppInitializer> {
         } else if (snapshot.hasError) {
           return MaterialApp(
             home: Scaffold(
-              body: Center(child: Text('Firebase init error: ${snapshot.error}')),
+              body:
+                  Center(child: Text('Firebase init error: ${snapshot.error}')),
             ),
           );
         } else {

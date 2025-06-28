@@ -1,5 +1,5 @@
-name: koprasi_undiksha
-description: Aplikasi Koperasi Undiksha.
+name: manajemen_peminjaman_barang
+description: Aplikasi Manajemen Peminjaman Barang.
 publish_to: 'none'
 version: 0.1.0
 
@@ -17,6 +17,7 @@ dependencies:
   firebase_auth: ^5.0.0
   provider: ^6.1.2
   google_sign_in: ^6.2.1
+  image_picker: ^1.0.7
 
 
 dev_dependencies:
@@ -31,3 +32,5 @@ flutter:
     - assets/logo_undiksha.png
     - assets/Gambar.jpg
     - assets/logo_utama.png
+    - assets/logo_login.jpg
+ 

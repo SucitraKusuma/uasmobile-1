@@ -36,15 +36,21 @@ class LoanProvider extends ChangeNotifier {
   }
 
   /// Edit status peminjaman
-  Future<void> editStatus(String id, String newStatus) async {
+  Future<void> editStatus(String id, String newStatus,
+      {String? fotoPengembalian}) async {
     try {
-      await _firestore.collection('peminjaman').doc(id).update({
-        'status': newStatus,
-      });
+      final updateData = {'status': newStatus};
+      if (fotoPengembalian != null) {
+        updateData['foto_pengembalian'] = fotoPengembalian;
+      }
+      await _firestore.collection('peminjaman').doc(id).update(updateData);
 
       final index = _daftarPinjaman.indexWhere((item) => item['id'] == id);
       if (index != -1) {
         _daftarPinjaman[index]['status'] = newStatus;
+        if (fotoPengembalian != null) {
+          _daftarPinjaman[index]['foto_pengembalian'] = fotoPengembalian;
+        }
         notifyListeners();
       }
     } catch (e) {
